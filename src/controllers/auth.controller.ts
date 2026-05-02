@@ -19,15 +19,21 @@ const scopes = [
   'https://www.googleapis.com/auth/userinfo.profile',
 ];
 
-const authorizationUrl = oauth2Client.generateAuthUrl({
-  access_type: 'offline',
-  scope: scopes,
-  include_granted_scopes: true,
-});
-
 // Google Login
 export const googleLogin = async (req: Request, res: Response) => {
-  res.redirect(authorizationUrl);
+  const { role } = req.query;
+
+  if (!role || !['penyalur', 'penerima'].includes(role as string)) {
+    return res.status(400).json({ error: 'Role tidak valid' });
+  }
+  
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: scopes,
+    include_granted_scopes: true,
+    state: role as string, // kirim role sebagai state
+  });
+  res.redirect(url);
 };
 
 // callback
@@ -37,7 +43,8 @@ export const callbackGoogle = async (
   next: NextFunction,
 ) => {
   try {
-    const { code } = req.query;
+    const { code, state } = req.query;
+    const role = state === 'penyalur' ? 'penyalur' : 'penerima';
 
     if (!code) {
       return res.status(400).json({ error: 'Authorization code tidak ada' });
@@ -68,9 +75,8 @@ export const callbackGoogle = async (
       user = await db
         .insert(usersTable)
         .values({
-          name: data.name,
           email: data.email,
-          role: 'user',
+          role,
         })
         .returning();
     }
@@ -85,8 +91,8 @@ export const callbackGoogle = async (
       message: 'Login berhasil',
       data: {
         id: user[0].id,
-        name: user[0].name,
         email: user[0].email,
+        role: user[0].role,
       },
       token,
     });
@@ -102,7 +108,13 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    const { name, age, email, password, role } = req.body;
+    const {  email, password, selectedRole } = req.body;
+
+    // validasi role
+    if (!['penyalur', 'penerima'].includes(selectedRole)) {
+    return res.status(400).json({ error: 'Role tidak valid' });
+    }
+    const role = selectedRole as 'penyalur' | 'penerima';
 
     // cek apakah email sudah terdaftar
     const existingUser = await db
@@ -121,15 +133,12 @@ export const register = async (
     const newUser = await db
       .insert(usersTable)
       .values({
-        name,
-        age,
         email,
         password: hashedPassword,
-        role: role || 'user',
+        role,
       })
       .returning({
         id: usersTable.id,
-        name: usersTable.name,
         email: usersTable.email,
         role: usersTable.role,
       });
@@ -153,7 +162,7 @@ export const login = async (
       .select()
       .from(usersTable)
       .where(eq(usersTable.email, email));
-    if (user.length === 0) {
+    if (user.length === 0) {  
       return res.status(401).json({ error: 'Email atau password salah' });
     } else if (user[0].password === null) {
       return res.status(401).json({
@@ -181,8 +190,7 @@ export const login = async (
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
-  // stateless JWT tidak benar-benar di-logout dari server kecuali pakai blacklist
-  // untuk level pemula: kita cukup beri responsee sukses, klien yang harus hapus tokennya
-  res.json({ message: 'Logout berhasil. Silakan hapus token di sisi klien.' });
-};
+export const logout = (req: Request, res: Response) => {
+  // Untuk logout, kita bisa zmenghapus token di sisi client
+  res.json({ message: 'Logout berhasil' });
+}

@@ -1,19 +1,14 @@
 import { z } from 'zod';
 
+// schema untuk register user
+export const registerUserSchema = z.object({
+  email: z.email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters long'),
+  role: z.enum(['penyalur', 'penerima']).optional(),
+});
+
 // schema untuk update user (semua field optional)
 export const updateUserSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Nama tidak boleh kosong')
-    .max(255, 'Nama maksimal 255 karakter')
-    .optional(),
-
-  age: z
-    .number()
-    .int('Umur harus bilangan bulat')
-    .min(1, 'Umur minimal 1 tahun')
-    .max(150, 'Umur tidak valid')
-    .optional(),
 
   email: z
     .email('Format email tidak valid')
@@ -33,3 +28,5 @@ export const userIdSchema = z.object({
 
 // infer TS types dari schema
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
+export type RegisterUserSchema = z.infer<typeof registerUserSchema>;
+export type UserIdSchema = z.infer<typeof userIdSchema>;
