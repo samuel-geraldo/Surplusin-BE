@@ -26,7 +26,7 @@ export const googleLogin = async (req: Request, res: Response) => {
   if (!role || !['penyalur', 'penerima'].includes(role as string)) {
     return res.status(400).json({ error: 'Role tidak valid' });
   }
-  
+
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: scopes,
@@ -108,13 +108,13 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    const {  email, password, selectedRole } = req.body;
+    const { email, password, role } = req.body;
 
     // validasi role
-    if (!['penyalur', 'penerima'].includes(selectedRole)) {
-    return res.status(400).json({ error: 'Role tidak valid' });
+    if (!['penyalur', 'penerima'].includes(role)) {
+      return res.status(400).json({ error: 'Role tidak valid' });
     }
-    const role = selectedRole as 'penyalur' | 'penerima';
+    const selectedRole = role as 'penyalur' | 'penerima';
 
     // cek apakah email sudah terdaftar
     const existingUser = await db
@@ -162,7 +162,7 @@ export const login = async (
       .select()
       .from(usersTable)
       .where(eq(usersTable.email, email));
-    if (user.length === 0) {  
+    if (user.length === 0) {
       return res.status(401).json({ error: 'Email atau password salah' });
     } else if (user[0].password === null) {
       return res.status(401).json({
@@ -193,4 +193,4 @@ export const login = async (
 export const logout = (req: Request, res: Response) => {
   // Untuk logout, kita bisa zmenghapus token di sisi client
   res.json({ message: 'Logout berhasil' });
-}
+};
