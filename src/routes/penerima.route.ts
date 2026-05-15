@@ -2,45 +2,63 @@ import { Router } from 'express';
 import {
   validateBody,
   validateParams,
-} from '../middlewares/validation.middleware';  
-import { updatePenerimaSchema, createPenerimaSchema, getPenerimaByIdSchema } from '../schemas/penerima.schema';
+  validateQuery,
+} from '../middlewares/validation.middleware';
 import { verifyToken, authorizeRole } from '../middlewares/auth.middleware';
-
+import {
+  updatePenerimaSchema,
+  createPenerimaSchema,
+  getPenerimaByIdSchema,
+  getDonasiNearbySchema,
+} from '../schemas/penerima.schema';
 import {
   getAllPenerima,
   getPenerimaById,
   createPenerima,
   updatePenerima,
   deletePenerima,
+  getNearbyDonasiController,
 } from '../controllers/penerima.controller';
 
 const router = Router();
 
 router.get('/', verifyToken, getAllPenerima);
-router.get('/:id', verifyToken, validateParams(getPenerimaByIdSchema), getPenerimaById);
+router.get(
+  '/nearby',
+  verifyToken,
+  authorizeRole(['penerima']),
+  validateQuery(getDonasiNearbySchema),
+  getNearbyDonasiController,
+);
+router.get(
+  '/:id',
+  verifyToken,
+  validateParams(getPenerimaByIdSchema),
+  getPenerimaById,
+);
 router.post(
-    '/',
-    verifyToken,
-    authorizeRole(['penerima']),
-    validateBody(createPenerimaSchema),
-    createPenerima,
+  '/',
+  verifyToken,
+  authorizeRole(['penerima']),
+  validateBody(createPenerimaSchema),
+  createPenerima,
 );
 
-router.put(    
-    '/:id',
-    verifyToken,
-    authorizeRole(['penerima']),
-    validateParams(getPenerimaByIdSchema),
-    validateBody(updatePenerimaSchema),
-    updatePenerima,
+router.put(
+  '/:id',
+  verifyToken,
+  authorizeRole(['penerima']),
+  validateParams(getPenerimaByIdSchema),
+  validateBody(updatePenerimaSchema),
+  updatePenerima,
 );
 
 router.delete(
-    '/:id',
-    verifyToken,
-    authorizeRole(['penerima']),
-    validateParams(getPenerimaByIdSchema),
-    deletePenerima,
+  '/:id',
+  verifyToken,
+  authorizeRole(['penerima']),
+  validateParams(getPenerimaByIdSchema),
+  deletePenerima,
 );
 
 export default router;
