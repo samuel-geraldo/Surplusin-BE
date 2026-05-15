@@ -51,7 +51,7 @@ export const getNearbyDonasi = async (
     .innerJoin(penyalurTable, eq(donasiTable.penyalur_id, penyalurTable.id))
     .where(
       and(
-        eq(donasiTable.status, 'available'),
+        eq(donasiTable.status, 'tersedia'),
         gt(donasiTable.expired_at, new Date()),
       ),
     );

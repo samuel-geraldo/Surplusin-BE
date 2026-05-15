@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { AuthRequest } from '../middlewares/auth.middleware';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { penerimaTable } from '../db/schema';
@@ -20,11 +21,12 @@ export const getAllPenerima = async (
 };
 
 export const createPenerima = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
+    const user_id = req.user?.id;
     const {
       nama_instansi,
       kategori,
@@ -32,7 +34,6 @@ export const createPenerima = async (
       alamat,
       latitude,
       longitude,
-      user_id,
     } = req.body;
     const newPenerima = await db
       .insert(penerimaTable)
@@ -41,6 +42,7 @@ export const createPenerima = async (
         kategori,
         nomor_whatsapp,
         alamat,
+        jumlah_klaim: 0,
         latitude,
         longitude,
         user_id,

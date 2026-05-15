@@ -12,7 +12,6 @@ import {
 } from '../schemas/klaim.schema';
 import {
   createKlaim,
-  updateStatusKlaim,
   getKlaimByDonasi,
   getKlaimByPenerima,
 } from '../controllers/klaim.controller';
@@ -26,15 +25,6 @@ router.post(
   validateParams(getKlaimByDonasiIdSchema),
   validateBody(createKlaimSchema),
   createKlaim,
-);
-
-router.put(
-  '/:id',
-  verifyToken,
-  authorizeRole(['penerima']),
-  validateParams(getKlaimByIdSchema),
-  validateBody(updateStatusKlaimSchema),
-  updateStatusKlaim,
 );
 
 router.get(

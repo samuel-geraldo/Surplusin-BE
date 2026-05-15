@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { AuthRequest } from '../middlewares/auth.middleware';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { penyalurTable } from '../db/schema';
@@ -21,11 +22,12 @@ export const getAllPenyalur = async (
 };
 
 export const createPenyalur = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
+    const user_id = req.user?.id;
     const {
       nama_toko,
       kategori,
@@ -33,7 +35,6 @@ export const createPenyalur = async (
       alamat,
       latitude,
       longitude,
-      user_id,
     } = req.body;
     const newPenyalur = await db
       .insert(penyalurTable)
