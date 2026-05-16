@@ -28,14 +28,8 @@ export const createPenyalur = async (
 ) => {
   try {
     const user_id = req.user?.id;
-    const {
-      nama_toko,
-      kategori,
-      nomor_whatsapp,
-      alamat,
-      latitude,
-      longitude,
-    } = req.body;
+    const { nama_toko, kategori, nomor_whatsapp, alamat, latitude, longitude } =
+      req.body;
     const newPenyalur = await db
       .insert(penyalurTable)
       .values({
@@ -141,7 +135,7 @@ export const getNearbyPenerimaController = async (
       radius ? parseFloat(radius as string) : 5,
     );
 
-    res.status(200).json({ success: true, data: penerima });
+    res.status(200).json(penerima);
   } catch (error) {
     next(error);
   }

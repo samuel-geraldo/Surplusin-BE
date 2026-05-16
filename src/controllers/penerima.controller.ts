@@ -149,7 +149,7 @@ export const getNearbyDonasiController = async (
       radius ? parseFloat(radius as string) : 5,
     );
 
-    return res.status(200).json({ success: true, data: donasi });
+    return res.status(200).json(donasi);
   } catch (error) {
     next(error);
   }

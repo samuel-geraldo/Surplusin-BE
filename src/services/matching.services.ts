@@ -76,7 +76,10 @@ export const getNearbyDonasi = async (
       return a.jarak_km - b.jarak_km;
     });
 
-  return result;
+  return {
+    total_donasi: result.length,
+    donasi: result,
+  };
 };
 
 // menghitung jumlah penerima terdekat perkategori
