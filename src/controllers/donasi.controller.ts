@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { donasiTable } from '../db/schema';
 import { penyalurTable } from '../db/schema';
+import { penerimaTable } from '../db/schema';
+import { klaimTable } from '../db/schema';
+import { count, sum, max, and } from 'drizzle-orm';
 import { kategoridonasiEnum } from '../db/schema';
 import { statusDonasiEnum } from '../db/schema';
 import { eq } from 'drizzle-orm';
@@ -192,3 +195,121 @@ export const deleteDonasi = async (
   }
 }
 
+export const getRiwayatPenerima = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+
+    const penerima = await db
+      .select()
+      .from(penerimaTable)
+      .where(eq(penerimaTable.user_id, userId));
+
+    if (!penerima.length) {
+      return res.status(404).json({ message: 'Penerima not found' });
+    }
+
+    const penerimaId = penerima[0].id;
+
+    const result = await db
+      .select({
+        nama_toko: penyalurTable.nama_toko,
+        alamat: penyalurTable.alamat,
+        nama_donasi: donasiTable.nama,
+        total_porsi: sum(donasiTable.jumlah),
+        jumlah_donasi: count(klaimTable.id),
+        terakhir: max(klaimTable.claimed_at),
+      })
+      .from(klaimTable)
+      .innerJoin(donasiTable, eq(klaimTable.donasi_id, donasiTable.id))
+      .innerJoin(penyalurTable, eq(donasiTable.penyalur_id, penyalurTable.id))
+      .where(
+        and(
+          eq(klaimTable.penerima_id, penerimaId),
+          eq(klaimTable.status, 'completed')
+        )
+      )
+      .groupBy(
+        penyalurTable.id,
+        penyalurTable.nama_toko,
+        penyalurTable.alamat,
+        donasiTable.nama,
+      );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRiwayatPenyerahan = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+
+    const penyalur = await db
+      .select()
+      .from(penyalurTable)
+      .where(eq(penyalurTable.user_id, userId));
+
+    if (!penyalur.length) {
+      return res.status(404).json({ message: 'Penyalur not found' });
+    }
+
+    const penyalurId = penyalur[0].id;
+
+    const result = await db
+      .select({
+        nama_instansi: penerimaTable.nama_instansi,
+        alamat: penerimaTable.alamat,
+        jumlah_pengiriman: count(klaimTable.id),
+        total_porsi: sum(donasiTable.jumlah),
+        terakhir: max(klaimTable.claimed_at),
+      })
+      .from(klaimTable)
+      .innerJoin(donasiTable, eq(klaimTable.donasi_id, donasiTable.id))
+      .innerJoin(penerimaTable, eq(klaimTable.penerima_id, penerimaTable.id))
+      .where(
+        and(
+          eq(donasiTable.penyalur_id, penyalurId),
+          eq(klaimTable.status, 'completed')
+        )
+      )
+      .groupBy(penerimaTable.id, penerimaTable.nama_instansi, penerimaTable.alamat);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getStatistikDonasi = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const [diklaim] = await db
+      .select({ total: count() })
+      .from(donasiTable)
+      .where(eq(donasiTable.status, 'diklaim'));
+
+    const [diterima] = await db
+      .select({ total: count() })
+      .from(donasiTable)
+      .where(eq(donasiTable.status, 'diterima'));
+
+    res.json({
+      total_diklaim: diklaim.total,
+      total_diterima: diterima.total,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

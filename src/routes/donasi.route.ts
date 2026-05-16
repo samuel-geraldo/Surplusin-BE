@@ -10,6 +10,7 @@ import {
   getDonasiByIdSchema,
   getDonasiByNamaSchema,
   getDonasiByKategoriSchema,
+  deleteDonasiSchema
 } from '../schemas/donasi.schema';
 import {
   createDonasi,
@@ -18,7 +19,10 @@ import {
   getDonasiByNama,
   getDonasiByKategori,
   deleteDonasi,
-  getDetailItemDonasi
+  getDetailItemDonasi,
+  getRiwayatPenerima,
+  getRiwayatPenyerahan,
+  getStatistikDonasi
 } from '../controllers/donasi.controller';
 
 const router = Router();
@@ -37,6 +41,9 @@ router.get(
   getDonasiByKategori
 )
 router.get('/detail/:id', verifyToken, getDetailItemDonasi)
+router.get('/riwayat-penerima', verifyToken, authorizeRole(['penerima']), getRiwayatPenerima)
+router.get('/riwayat-penyerahan', verifyToken, authorizeRole(['penyalur']), getRiwayatPenyerahan)
+router.get('/statistik', verifyToken, getStatistikDonasi)
 
 router.get('/:id', verifyToken, validateParams(getDonasiByIdSchema), getDonasiById);
 

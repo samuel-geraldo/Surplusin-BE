@@ -19,7 +19,6 @@ export const createPenerimaSchema = z.object({
     .number()
     .min(-180, 'Longitude tidak valid')
     .max(180, 'Longitude tidak valid'),
-  user_id: z.number().min(1, 'User ID is required'),
 });
 
 // schema untuk update penerima

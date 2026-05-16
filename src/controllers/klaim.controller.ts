@@ -3,7 +3,8 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 import { klaimTable, donasiTable } from '../db/schema';
 import { penerimaTable } from '../db/schema';
 import { penyalurTable } from '../db/schema';
-import { eq, notExists } from 'drizzle-orm';
+import { count, eq, notExists, sum, max } from 'drizzle-orm';
+
 import { drizzle } from 'drizzle-orm/node-postgres';
 const db = drizzle(process.env.DATABASE_URL!);
 
@@ -69,49 +70,6 @@ export const createKlaim = async (
   }
 };
 
-export const getKlaimByPenerima = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const userId = req.user?.id;
-
-    const penerima = await db
-      .select()
-      .from(penerimaTable)
-      .where(eq(penerimaTable.user_id, userId));
-
-    if (!penerima.length) {
-      return res.status(404).json({ message: 'Penerima not found' });
-    }
-
-    const penerimaId = penerima[0].id;
-    const result = await db
-      .select({
-        // data klaim
-        klaim_id: klaimTable.id,
-        klaim_status: klaimTable.status,
-        claimed_at: klaimTable.claimed_at,
-        // data donasi
-        nama_donasi: donasiTable.nama,
-        jumlah: donasiTable.jumlah,
-        satuan: donasiTable.satuan,
-        // data penerima
-        nama_instansi: penerimaTable.nama_instansi,
-        alamat: penerimaTable.alamat,
-      })
-      .from(klaimTable)
-      .innerJoin(donasiTable, eq(klaimTable.donasi_id, donasiTable.id))
-      .innerJoin(penerimaTable, eq(klaimTable.penerima_id, penerimaTable.id))
-      .where(eq(klaimTable.penerima_id, penerimaId));
-
-    return res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const getKlaimByDonasi = async (
   req: Request,
   res: Response,
@@ -132,3 +90,7 @@ export const getKlaimByDonasi = async (
       .json({ success: false, message: 'Internal server error' });
   }
 };
+
+
+
+

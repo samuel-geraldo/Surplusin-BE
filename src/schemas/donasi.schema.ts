@@ -21,7 +21,13 @@ export const getDonasiByIdSchema = z.object({
   id: z.string().min(1, 'ID is required'),
 });
 
+export const deleteDonasiSchema = z.object({
+  id: z.string().min(1, 'ID is required'),
+});
+
+
 export type CreateDonasiSchema = z.infer<typeof createDonasiSchema>;
 export type GetDonasiByNamaSchema = z.infer<typeof getDonasiByNamaSchema>;
 export type GetDonasiByKategoriSchema = z.infer<typeof getDonasiByKategoriSchema>;
 export type GetDonasiByIdSchema = z.infer<typeof getDonasiByIdSchema>;
+export type DeleteDonasi = z.infer<typeof deleteDonasiSchema>;
