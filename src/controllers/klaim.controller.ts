@@ -70,6 +70,42 @@ export const createKlaim = async (
   }
 };
 
+export const updateStatusKlaim = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const timestampField = {
+      on_the_way: {},
+      arrived: { arrived_at: new Date() },
+      completed: { completed_at: new Date() },
+    }[req.body.status as string];
+
+    const updatedKlaim = await db
+      .update(klaimTable)
+      .set({ status: req.body.status, ...timestampField })
+      .where(eq(klaimTable.id, parseInt(req.params.id as string)))
+      .returning();
+
+    if (!updatedKlaim.length) {
+      return res.status(404).json({ message: 'Klaim not found' });
+    }
+
+    // update status donasi
+    if (req.body.status === 'completed') {
+      await db
+        .update(donasiTable)
+        .set({ status: 'diterima' })
+        .where(eq(donasiTable.id, updatedKlaim[0].donasi_id));
+    }
+
+    return res.status(200).json(updatedKlaim[0]);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getKlaimByDonasi = async (
   req: Request,
   res: Response,
