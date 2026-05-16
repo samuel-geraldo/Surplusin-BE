@@ -12,9 +12,12 @@ import {
   createKlaim,
   getKlaimByDonasi,
   updateStatusKlaim,
+  getAllKlaim
 } from '../controllers/klaim.controller';
 
 const router = Router();
+
+router.get('/', verifyToken, getAllKlaim);
 
 router.post(
   '/:donasi_id',

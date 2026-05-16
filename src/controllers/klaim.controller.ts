@@ -124,3 +124,16 @@ export const getKlaimByDonasi = async (
     next(error);
   }
 };
+
+export const getAllKlaim = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const klaim = await db.select().from(klaimTable);
+    res.json(klaim);
+  } catch (error) {
+    next(error);
+  }
+};

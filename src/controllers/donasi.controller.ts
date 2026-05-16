@@ -94,7 +94,12 @@ export const getDonasiByNama = async (
         const donasi = await db
             .select()
             .from(donasiTable)
-            .where(eq(donasiTable.nama, nama));
+            .where(
+                and(
+                    eq(donasiTable.nama, nama),
+                    eq(donasiTable.status, 'tersedia')
+                )
+            ); 
 
         if (donasi.length === 0) {
             return res.status(404).json({ error: 'Donasi not found' });
@@ -163,7 +168,12 @@ export const getDonasiByKategori = async (
     const donasi = await db
       .select()
       .from(donasiTable)
-      .where(eq(donasiTable.kategori, kategori));
+      .where(
+        and(
+          eq(donasiTable.kategori, kategori),
+          eq(donasiTable.status, 'tersedia')
+        )
+      );
 
     if (donasi.length === 0) {
       return res.status(404).json({ error: 'Donasi not found' });
