@@ -9,7 +9,6 @@ import {
   updatePenyalurSchema,
   createPenyalurSchema,
   getPenyalurByIdSchema,
-  getNearbyPenerimaSchema,
 } from '../schemas/penyalur.schema';
 import {
   getAllPenyalur,
@@ -27,7 +26,6 @@ router.get(
   '/nearby',
   verifyToken,
   authorizeRole(['penyalur']),
-  validateQuery(getNearbyPenerimaSchema),
   getNearbyPenerimaController,
 );
 router.get(

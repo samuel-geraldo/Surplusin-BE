@@ -9,7 +9,6 @@ import {
   updatePenerimaSchema,
   createPenerimaSchema,
   getPenerimaByIdSchema,
-  getDonasiNearbySchema,
 } from '../schemas/penerima.schema';
 import {
   getAllPenerima,
@@ -27,7 +26,6 @@ router.get(
   '/nearby',
   verifyToken,
   authorizeRole(['penerima']),
-  validateQuery(getDonasiNearbySchema),
   getNearbyDonasiController,
 );
 router.get(

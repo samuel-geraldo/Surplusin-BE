@@ -16,7 +16,6 @@ export const createPenyalurSchema = z.object({
     .min(-180, 'Longitude tidak valid')
     .max(180, 'Longitude tidak valid')
     .optional(),
-  user_id: z.number().min(1, 'User ID is required'),
 });
 
 // schema untuk update penyalur
@@ -36,14 +35,7 @@ export const getPenyalurByIdSchema = z.object({
   id: z.string().min(1, 'ID is required'),
 });
 
-export const getNearbyPenerimaSchema = z.object({
-  latitude: z.coerce.number().min(-90).max(90),
-  longitude: z.coerce.number().min(-180).max(180),
-  radius: z.coerce.number().min(1).max(50).default(5),
-});
-
 // infer TS types dari schema
-export type GetNearbyPenerimaSchema = z.infer<typeof getNearbyPenerimaSchema>;
 export type UpdatePenyalurSchema = z.infer<typeof updatePenyalurSchema>;
 export type CreatePenyalurSchema = z.infer<typeof createPenyalurSchema>;
 export type GetPenyalurByIdSchema = z.infer<typeof getPenyalurByIdSchema>;

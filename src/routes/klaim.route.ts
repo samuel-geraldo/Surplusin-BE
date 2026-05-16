@@ -5,26 +5,24 @@ import {
 } from '../middlewares/validation.middleware';
 import { verifyToken, authorizeRole } from '../middlewares/auth.middleware';
 import {
-  createKlaimSchema,
   updateStatusKlaimSchema,
-  getKlaimByIdSchema,
-  getKlaimByDonasiIdSchema,
+  klaimIdSchema,
 } from '../schemas/klaim.schema';
 import {
   createKlaim,
-  updateStatusKlaim,
   getKlaimByDonasi,
-  getKlaimByPenerima,
+  updateStatusKlaim,
+  getAllKlaim
 } from '../controllers/klaim.controller';
 
 const router = Router();
+
+router.get('/', verifyToken, getAllKlaim);
 
 router.post(
   '/:donasi_id',
   verifyToken,
   authorizeRole(['penerima']),
-  validateParams(getKlaimByDonasiIdSchema),
-  validateBody(createKlaimSchema),
   createKlaim,
 );
 
@@ -32,25 +30,16 @@ router.put(
   '/:id',
   verifyToken,
   authorizeRole(['penerima']),
-  validateParams(getKlaimByIdSchema),
+  validateParams(klaimIdSchema),
   validateBody(updateStatusKlaimSchema),
   updateStatusKlaim,
 );
 
 router.get(
-  '/donasi/:donasi_id',
-  verifyToken,
-  authorizeRole(['penerima', 'penyalur']),
-  validateParams(getKlaimByDonasiIdSchema),
-  getKlaimByDonasi,
-);
-
-router.get(
-  '/penerima/:id',
+  '/search/:donasi_id',
   verifyToken,
   authorizeRole(['penerima']),
-  validateParams(getKlaimByIdSchema),
-  getKlaimByPenerima,
+  getKlaimByDonasi,
 );
 
 export default router;

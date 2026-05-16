@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { AuthRequest } from '../middlewares/auth.middleware';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { penyalurTable } from '../db/schema';
@@ -21,20 +22,14 @@ export const getAllPenyalur = async (
 };
 
 export const createPenyalur = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const {
-      nama_toko,
-      kategori,
-      nomor_whatsapp,
-      alamat,
-      latitude,
-      longitude,
-      user_id,
-    } = req.body;
+    const user_id = req.user?.id;
+    const { nama_toko, kategori, nomor_whatsapp, alamat, latitude, longitude } =
+      req.body;
     const newPenyalur = await db
       .insert(penyalurTable)
       .values({
@@ -127,20 +122,16 @@ export const deletePenyalur = async (
 };
 
 export const getNearbyPenerimaController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { latitude, longitude, radius } = (req as any).validatedQuery;
+    const user_id = req.user?.id;
 
-    const penerima = await getNearbyPenerima(
-      parseFloat(latitude as string),
-      parseFloat(longitude as string),
-      radius ? parseFloat(radius as string) : 5,
-    );
+    const penerima = await getNearbyPenerima(user_id);
 
-    res.status(200).json({ success: true, data: penerima });
+    res.status(200).json(penerima);
   } catch (error) {
     next(error);
   }

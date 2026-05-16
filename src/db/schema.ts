@@ -15,15 +15,16 @@ export const kategoripenerimaEnum = pgEnum('kategoripenerima_enum', [
   'Lainnya',
 ]);
 
-export const kategoripenyalurEnum = pgEnum('kategoripenyalur_enum', [
+export const kategoridonasiEnum = pgEnum('kategoridonasi_enum', [
   'Makanan Siap Saji',
   'Roti & Pastry',
   'Jajanan & Kue',
-]);
+])
+
 export const statusDonasiEnum = pgEnum('status_donasi_enum', [
-  'available',
-  'claimed',
-  'completed',
+  'tersedia',
+  'diklaim',
+  'diterima',
 ]);
 
 export const statusKlaimEnum = pgEnum('status_klaim_enum', [
@@ -32,6 +33,8 @@ export const statusKlaimEnum = pgEnum('status_klaim_enum', [
   'arrived',
   'completed',
 ]);
+
+export const satuanEnum = pgEnum('satuan_enum', ['Pcs', 'Kg', 'Porsi', 'Paket']);
 
 export const usersTable = pgTable('users', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -46,6 +49,7 @@ export const penerimaTable = pgTable('penerima', {
   kategori: kategoripenerimaEnum('kategori').notNull(),
   nomor_whatsapp: varchar({ length: 20 }).notNull(),
   alamat: text('alamat').notNull(),
+  jumlah_klaim: integer().notNull(),
   latitude: decimal('latitude', { precision: 10, scale: 7 }).notNull(),
   longitude: decimal('longitude', { precision: 10, scale: 7 }).notNull(),
   user_id: integer()
@@ -56,7 +60,7 @@ export const penerimaTable = pgTable('penerima', {
 export const penyalurTable = pgTable('penyalur', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   nama_toko: varchar({ length: 255 }).notNull(),
-  kategori: kategoripenyalurEnum('kategori').notNull(),
+  kategori: kategoridonasiEnum('kategori').notNull(),
   nomor_whatsapp: varchar({ length: 20 }).notNull(),
   alamat: text('alamat').notNull(),
   latitude: decimal('latitude', { precision: 10, scale: 7 }).notNull(),
@@ -72,12 +76,12 @@ export const donasiTable = pgTable('donasi', {
     .notNull()
     .references(() => penyalurTable.id),
   nama: varchar({ length: 255 }).notNull(),
-  kategori: kategoripenyalurEnum('kategori').notNull(),
+  kategori: kategoridonasiEnum('kategori').notNull(),
   jumlah: integer().notNull(),
-  satuan: varchar({ length: 50 }).notNull(),
+  satuan: satuanEnum('satuan').notNull(),
   item_detail: text('item_detail'),
   expired_at: timestamp('expired_at').notNull(),
-  status: statusDonasiEnum('status').default('available'),
+  status: statusDonasiEnum('status').notNull(),
   created_at: timestamp('created_at').defaultNow(),
 });
 
