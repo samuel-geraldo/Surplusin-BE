@@ -136,18 +136,14 @@ export const updatePenerima = async (
 };
 
 export const getNearbyDonasiController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { latitude, longitude, radius } = (req as any).validatedQuery;
+    const user_id = req.user?.id;
 
-    const donasi = await getNearbyDonasi(
-      parseFloat(latitude as string),
-      parseFloat(longitude as string),
-      radius ? parseFloat(radius as string) : 5,
-    );
+    const donasi = await getNearbyDonasi(user_id);
 
     return res.status(200).json(donasi);
   } catch (error) {

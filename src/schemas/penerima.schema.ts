@@ -41,13 +41,6 @@ export const updatePenerimaSchema = z.object({
     .optional(),
 });
 
-// schema untuk donasi terdekat
-export const getDonasiNearbySchema = z.object({
-  latitude: z.coerce.number().min(-90).max(90),
-  longitude: z.coerce.number().min(-180).max(180),
-  radius: z.coerce.number().min(1).max(50).default(5),
-});
-
 // schema untuk validasi parameter
 export const getPenerimaByIdSchema = z.object({
   id: z.string().min(1, 'ID is required'),
@@ -57,4 +50,3 @@ export const getPenerimaByIdSchema = z.object({
 export type UpdatePenerimaSchema = z.infer<typeof updatePenerimaSchema>;
 export type CreatePenerimaSchema = z.infer<typeof createPenerimaSchema>;
 export type GetPenerimaByIdSchema = z.infer<typeof getPenerimaByIdSchema>;
-export type GetDonasiNearbySchema = z.infer<typeof getDonasiNearbySchema>;

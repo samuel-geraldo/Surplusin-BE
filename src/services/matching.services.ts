@@ -25,11 +25,16 @@ const haversineDistance = (
 };
 
 // memfilter donasi terdekat dari seorang penerima
-export const getNearbyDonasi = async (
-  latitude: number,
-  longitude: number,
-  radius: number = 5,
-) => {
+export const getNearbyDonasi = async (user_id: number, radius: number = 5) => {
+  const penerima = await db
+    .select()
+    .from(penerimaTable)
+    .where(eq(penerimaTable.user_id, user_id));
+
+  if (penerima.length === 0) {
+    throw new Error('Penerima tidak ditemukan');
+  }
+
   // ambil semua donasi yang available dan belum expired
   const donasi = await db
     .select({
@@ -56,13 +61,15 @@ export const getNearbyDonasi = async (
       ),
     );
 
+  const latitude = penerima[0].latitude;
+  const longitude = penerima[0].longitude;
   // hitung jarak tiap donasi dari lokasi penerima, lalu filter by radius
   const result = donasi
     .map((d) => ({
       ...d,
       jarak_km: haversineDistance(
-        latitude,
-        longitude,
+        parseFloat(latitude),
+        parseFloat(longitude),
         parseFloat(d.penyalur_latitude),
         parseFloat(d.penyalur_longitude),
       ),
@@ -84,10 +91,21 @@ export const getNearbyDonasi = async (
 
 // menghitung jumlah penerima terdekat perkategori
 export const getNearbyPenerima = async (
-  latitude: number,
-  longitude: number,
+  user_id: number,
   radius: number = 5,
 ) => {
+  const penyalur = await db
+    .select()
+    .from(penyalurTable)
+    .where(eq(penyalurTable.user_id, user_id));
+
+  if (penyalur.length === 0) {
+    throw new Error('Penyalur tidak ditemukan');
+  }
+
+  const latitude = penyalur[0].latitude;
+  const longitude = penyalur[0].longitude;
+
   const penerima = await db
     .select({
       kategori: penerimaTable.kategori,
@@ -99,8 +117,8 @@ export const getNearbyPenerima = async (
   const filtered = penerima.filter(
     (p) =>
       haversineDistance(
-        latitude,
-        longitude,
+        parseFloat(latitude),
+        parseFloat(longitude),
         parseFloat(p.latitude),
         parseFloat(p.longitude),
       ) <= radius,

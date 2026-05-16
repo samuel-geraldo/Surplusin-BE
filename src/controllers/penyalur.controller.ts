@@ -122,18 +122,14 @@ export const deletePenyalur = async (
 };
 
 export const getNearbyPenerimaController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { latitude, longitude, radius } = (req as any).validatedQuery;
+    const user_id = req.user?.id;
 
-    const penerima = await getNearbyPenerima(
-      parseFloat(latitude as string),
-      parseFloat(longitude as string),
-      radius ? parseFloat(radius as string) : 5,
-    );
+    const penerima = await getNearbyPenerima(user_id);
 
     res.status(200).json(penerima);
   } catch (error) {
