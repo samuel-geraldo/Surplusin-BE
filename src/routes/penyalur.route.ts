@@ -17,11 +17,13 @@ import {
   updatePenyalur,
   deletePenyalur,
   getNearbyPenerimaController,
+  getDataPenyalurByJWT
 } from '../controllers/penyalur.controller';
 
 const router = Router();
 
 router.get('/', verifyToken, getAllPenyalur);
+router.get('/data', verifyToken, authorizeRole(['penyalur']), getDataPenyalurByJWT);
 router.get(
   '/nearby',
   verifyToken,

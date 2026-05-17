@@ -21,6 +21,37 @@ export const getAllPenyalur = async (
   }
 };
 
+export const getDataPenyalurByJWT = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user_id = req.user?.id;
+
+    const penyalur = await db
+      .select({
+        nama_toko: penyalurTable.nama_toko,
+        kategori: penyalurTable.kategori,
+        nomor_whatsapp: penyalurTable.nomor_whatsapp,
+        alamat: penyalurTable.alamat,
+        latitude: penyalurTable.latitude,
+        longitude: penyalurTable.longitude,
+        patokan: penyalurTable.patokan,
+      })
+      .from(penyalurTable)
+      .where(eq(penyalurTable.user_id, user_id));
+
+    if (penyalur.length === 0) {
+      return res.status(404).json({ error: 'Penyalur not found' });
+    }
+
+    res.json(penyalur[0]);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export const createPenyalur = async (
   req: AuthRequest,
   res: Response,
@@ -75,7 +106,7 @@ export const updatePenyalur = async (
 ) => {
   try {
     const id = parseInt(req.params.id as string);
-    const { nama_toko, kategori, nomor_whatsapp, alamat, latitude, longitude } =
+    const { nama_toko, kategori, nomor_whatsapp, alamat, latitude, longitude, patokan } =
       req.body;
     const data: any = {};
     if (nama_toko) data.nama_toko = nama_toko;
@@ -84,6 +115,7 @@ export const updatePenyalur = async (
     if (alamat) data.alamat = alamat;
     if (latitude !== undefined) data.latitude = latitude;
     if (longitude !== undefined) data.longitude = longitude;
+    if (patokan) data.patokan = patokan;
     if (Object.keys(data).length === 0) {
       return res.status(400).json({ error: 'No data to update' });
     }
