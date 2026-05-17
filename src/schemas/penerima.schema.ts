@@ -19,6 +19,7 @@ export const createPenerimaSchema = z.object({
     .number()
     .min(-180, 'Longitude tidak valid')
     .max(180, 'Longitude tidak valid'),
+  patokan: z.string(),
 });
 
 // schema untuk update penerima
@@ -39,6 +40,7 @@ export const updatePenerimaSchema = z.object({
     .min(-180, 'Longitude tidak valid')
     .max(180, 'Longitude tidak valid')
     .optional(),
+  patokan: z.string().optional(),
 });
 
 // schema untuk validasi parameter

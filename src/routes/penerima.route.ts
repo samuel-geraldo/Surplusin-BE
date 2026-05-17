@@ -17,11 +17,13 @@ import {
   updatePenerima,
   deletePenerima,
   getNearbyDonasiController,
+  getPenerimaByJWT
 } from '../controllers/penerima.controller';
 
 const router = Router();
 
 router.get('/', verifyToken, getAllPenerima);
+router.get('/data', verifyToken, authorizeRole(['penerima']), getPenerimaByJWT);
 router.get(
   '/nearby',
   verifyToken,

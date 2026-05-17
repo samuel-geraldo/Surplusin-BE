@@ -20,6 +20,37 @@ export const getAllPenerima = async (
   }
 };
 
+export const getPenerimaByJWT = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user_id = req.user?.id;
+
+    const penerima = await db
+      .select({
+        nama_instansi: penerimaTable.nama_instansi,
+        kategori: penerimaTable.kategori,
+        nomor_whatsapp: penerimaTable.nomor_whatsapp,
+        alamat: penerimaTable.alamat,
+        latitude: penerimaTable.latitude,
+        longitude: penerimaTable.longitude,
+        patokan: penerimaTable.patokan,
+      })
+      .from(penerimaTable)
+      .where(eq(penerimaTable.user_id, user_id));
+
+    if (penerima.length === 0) {
+      return res.status(404).json({ error: 'Penerima not found' });
+    }
+
+    res.json(penerima);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export const createPenerima = async (
   req: AuthRequest,
   res: Response,
@@ -108,6 +139,7 @@ export const updatePenerima = async (
       alamat,
       latitude,
       longitude,
+      patokan
     } = req.body;
     const data: any = {};
     if (nama_instansi) data.nama_instansi = nama_instansi;
@@ -116,6 +148,7 @@ export const updatePenerima = async (
     if (alamat) data.alamat = alamat;
     if (latitude !== undefined) data.latitude = latitude;
     if (longitude !== undefined) data.longitude = longitude;
+    if (patokan) data.patokan = patokan;
 
     if (Object.keys(data).length === 0) {
       return res.status(400).json({ error: 'No data to update' });
