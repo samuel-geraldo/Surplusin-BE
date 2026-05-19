@@ -16,6 +16,7 @@ export const createPenyalurSchema = z.object({
     .min(-180, 'Longitude tidak valid')
     .max(180, 'Longitude tidak valid')
     .optional(),
+  patokan: z.string(),
 });
 
 // schema untuk update penyalur
@@ -28,6 +29,7 @@ export const updatePenyalurSchema = z.object({
   alamat: z.string().min(1, 'Alamat is required').optional(),
   latitude: z.number().min(1, 'Latitude is required').optional(),
   longitude: z.number().min(1, 'Longitude is required').optional(),
+  patokan: z.string().optional(),
 });
 
 // schema untuk validasi parameter
