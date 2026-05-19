@@ -102,7 +102,7 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    const { email, password, selectedRoleole } = req.body;
+    const { email, password, selectedRole } = req.body;
 
     // cek apakah email sudah terdaftar
     const existingUser = await db
@@ -124,7 +124,7 @@ export const register = async (
       .values({
         email,
         password: hashedPassword,
-        role: selectedRoleole,
+        role: selectedRole,
       })
       .returning({
         id: usersTable.id,

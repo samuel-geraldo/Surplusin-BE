@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './schemas/swagger.js';
 import appRoutes from './routes/index.js';
 
 const app = express();
@@ -13,6 +15,9 @@ app.use(
   }),
 );
 app.use(express.json());
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use('/api', appRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
