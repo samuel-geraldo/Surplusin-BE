@@ -87,15 +87,9 @@ export const callbackGoogle = async (
     };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
 
-    return res.json({
-      message: 'Login berhasil',
-      data: {
-        id: user[0].id,
-        email: user[0].email,
-        role: user[0].role,
-      },
-      token,
-    });
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/auth?token=${token}&email=${user[0].email}&role=${user[0].role}`,
+    );
   } catch (error) {
     next(error);
   }
@@ -108,19 +102,14 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    const { email, password, role } = req.body;
-
-    // validasi role
-    if (!['penyalur', 'penerima'].includes(role)) {
-      return res.status(400).json({ error: 'Role tidak valid' });
-    }
-    const selectedRole = role as 'penyalur' | 'penerima';
+    const { email, password, selectedRoleole } = req.body;
 
     // cek apakah email sudah terdaftar
     const existingUser = await db
       .select()
       .from(usersTable)
       .where(eq(usersTable.email, email));
+
     if (existingUser.length !== 0) {
       return res.status(400).json({ error: 'Email sudah terdaftar' });
     }
@@ -135,7 +124,7 @@ export const register = async (
       .values({
         email,
         password: hashedPassword,
-        role,
+        role: selectedRoleole,
       })
       .returning({
         id: usersTable.id,

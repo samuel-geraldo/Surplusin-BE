@@ -19,7 +19,7 @@ export const kategoridonasiEnum = pgEnum('kategoridonasi_enum', [
   'Makanan Siap Saji',
   'Roti & Pastry',
   'Jajanan & Kue',
-])
+]);
 
 export const statusDonasiEnum = pgEnum('status_donasi_enum', [
   'tersedia',
@@ -34,7 +34,12 @@ export const statusKlaimEnum = pgEnum('status_klaim_enum', [
   'completed',
 ]);
 
-export const satuanEnum = pgEnum('satuan_enum', ['Pcs', 'Kg', 'Porsi', 'Paket']);
+export const satuanEnum = pgEnum('satuan_enum', [
+  'Pcs',
+  'Kg',
+  'Porsi',
+  'Paket',
+]);
 
 export const usersTable = pgTable('users', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

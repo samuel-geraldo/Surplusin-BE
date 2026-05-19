@@ -1,12 +1,18 @@
 import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import appRoutes from './routes/index.js';
 
 const app = express();
 const PORT = 3000;
 
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+);
 app.use(express.json());
-
 app.use('/api', appRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
