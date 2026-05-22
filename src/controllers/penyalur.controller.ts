@@ -5,7 +5,6 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { penyalurTable } from '../db/schema';
 import { getNearbyPenerima } from '../services/matching.services';
 import bcrypt from 'bcryptjs';
-import { success } from 'zod/index.cjs';
 const db = drizzle(process.env.DATABASE_URL!);
 
 export const getAllPenyalur = async (
@@ -159,19 +158,22 @@ export const updatePenyalur = async (
 };
 
 export const deletePenyalur = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const id = parseInt(req.params.id as string);
-    const penyalur = await db
+    const user_id = req.user?.id;
+
+    const deleted = await db
       .delete(penyalurTable)
-      .where(eq(penyalurTable.id, id))
+      .where(eq(penyalurTable.user_id, user_id))
       .returning();
-    if (penyalur.length === 0) {
+
+    if (deleted.length === 0) {
       return res.status(404).json({ error: 'Penyalur not found' });
     }
+
     res.json({ message: 'Penyalur deleted successfully' });
   } catch (error) {
     next(error);

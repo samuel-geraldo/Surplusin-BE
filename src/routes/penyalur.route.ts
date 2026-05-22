@@ -239,19 +239,12 @@ router.put(
 
 /**
  * @openapi
- * /api/penyalur/{id}:
+ * /api/penyalur/hapus:
  *   delete:
  *     tags: [Penyalur]
  *     summary: Menghapus data penyalur
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID penyalur
  *     responses:
  *       200:
  *         description: Berhasil menghapus data penyalur
@@ -265,10 +258,9 @@ router.put(
  *         description: Server error
  */
 router.delete(
-  '/:id',
+  '/hapus',
   verifyToken,
   authorizeRole(['penyalur']),
-  validateParams(getPenyalurByIdSchema),
   deletePenyalur,
 );
 
