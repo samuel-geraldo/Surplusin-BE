@@ -23,7 +23,7 @@ export const getAllPenerima = async (
 export const getPenerimaByJWT = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const user_id = req.user?.id;
@@ -49,7 +49,7 @@ export const getPenerimaByJWT = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const createPenerima = async (
   req: AuthRequest,
@@ -65,20 +65,22 @@ export const createPenerima = async (
       alamat,
       latitude,
       longitude,
+      patokan,
     } = req.body;
-    const newPenerima = await db
-      .insert(penerimaTable)
-      .values({
-        nama_instansi,
-        kategori,
-        nomor_whatsapp,
-        alamat,
-        jumlah_klaim: 0,
-        latitude,
-        longitude,
-        user_id,
-      })
-      .returning();
+    const data: any = {
+      nama_instansi,
+      kategori,
+      nomor_whatsapp,
+      alamat,
+      jumlah_klaim: 0,
+      latitude,
+      longitude,
+      user_id,
+    };
+
+    if (patokan !== undefined) data.patokan = patokan;
+
+    const newPenerima = await db.insert(penerimaTable).values(data).returning();
     res.json(newPenerima);
   } catch (error) {
     next(error);
@@ -139,7 +141,7 @@ export const updatePenerima = async (
       alamat,
       latitude,
       longitude,
-      patokan
+      patokan,
     } = req.body;
     const data: any = {};
     if (nama_instansi) data.nama_instansi = nama_instansi;

@@ -24,7 +24,7 @@ export const getAllPenyalur = async (
 export const getDataPenyalurByJWT = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const user_id = req.user?.id;
@@ -50,7 +50,7 @@ export const getDataPenyalurByJWT = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const createPenyalur = async (
   req: AuthRequest,
@@ -59,20 +59,28 @@ export const createPenyalur = async (
 ) => {
   try {
     const user_id = req.user?.id;
-    const { nama_toko, kategori, nomor_whatsapp, alamat, latitude, longitude } =
-      req.body;
-    const newPenyalur = await db
-      .insert(penyalurTable)
-      .values({
-        nama_toko,
-        kategori,
-        nomor_whatsapp,
-        alamat,
-        latitude,
-        longitude,
-        user_id,
-      })
-      .returning();
+    const {
+      nama_toko,
+      kategori,
+      nomor_whatsapp,
+      alamat,
+      latitude,
+      longitude,
+      patokan,
+    } = req.body;
+    const data: any = {
+      nama_toko,
+      kategori,
+      nomor_whatsapp,
+      alamat,
+      latitude,
+      longitude,
+      user_id,
+    };
+
+    if (patokan !== undefined) data.patokan = patokan;
+
+    const newPenyalur = await db.insert(penyalurTable).values(data).returning();
     res.json(newPenyalur);
   } catch (error) {
     next(error);
@@ -106,8 +114,15 @@ export const updatePenyalur = async (
 ) => {
   try {
     const id = parseInt(req.params.id as string);
-    const { nama_toko, kategori, nomor_whatsapp, alamat, latitude, longitude, patokan } =
-      req.body;
+    const {
+      nama_toko,
+      kategori,
+      nomor_whatsapp,
+      alamat,
+      latitude,
+      longitude,
+      patokan,
+    } = req.body;
     const data: any = {};
     if (nama_toko) data.nama_toko = nama_toko;
     if (kategori) data.kategori = kategori;

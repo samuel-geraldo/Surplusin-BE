@@ -148,7 +148,7 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [nama_toko, kategori, nomor_whatsapp, alamat, patokan]
+ *             required: [nama_toko, kategori, nomor_whatsapp, alamat]
  *             properties:
  *               nama_toko:
  *                 type: string

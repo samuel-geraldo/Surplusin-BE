@@ -165,7 +165,7 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [nama_instansi, kategori, nomor_whatsapp, alamat, latitude, longitude, patokan]
+ *             required: [nama_instansi, kategori, nomor_whatsapp, alamat, latitude, longitude]
  *             properties:
  *               nama_instansi:
  *                 type: string
