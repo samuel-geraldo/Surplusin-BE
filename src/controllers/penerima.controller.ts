@@ -113,14 +113,17 @@ export const deletePenerima = async (
   next: NextFunction,
 ) => {
   try {
-    const id = parseInt(req.params.id as string);
-    const penerima = await db
+    const user_id = req.user?.id;
+
+    const deleted = await db
       .delete(penerimaTable)
-      .where(eq(penerimaTable.id, id))
+      .where(eq(penerimaTable.user_id, user_id))
       .returning();
-    if (penerima.length === 0) {
+
+    if (deleted.length === 0) {
       return res.status(404).json({ error: 'Penerima not found' });
     }
+
     res.json({ message: 'Penerima deleted successfully' });
   } catch (error) {
     next(error);

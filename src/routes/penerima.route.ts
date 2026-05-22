@@ -256,19 +256,12 @@ router.put(
 
 /**
  * @openapi
- * /api/penerima/{id}:
+ * /api/penerima/hapus:
  *   delete:
  *     tags: [Penerima]
  *     summary: Menghapus data penerima
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID penerima
  *     responses:
  *       200:
  *         description: Berhasil menghapus data penerima
@@ -282,10 +275,9 @@ router.put(
  *         description: Server error
  */
 router.delete(
-  '/:id',
+  '/hapus',
   verifyToken,
   authorizeRole(['penerima']),
-  validateParams(getPenerimaByIdSchema),
   deletePenerima,
 );
 
