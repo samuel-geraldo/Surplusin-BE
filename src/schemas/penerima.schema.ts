@@ -19,7 +19,7 @@ export const createPenerimaSchema = z.object({
     .number()
     .min(-180, 'Longitude tidak valid')
     .max(180, 'Longitude tidak valid'),
-  patokan: z.string(),
+  patokan: z.string().optional(),
 });
 
 // schema untuk update penerima

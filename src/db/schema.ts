@@ -57,7 +57,7 @@ export const penerimaTable = pgTable('penerima', {
   jumlah_klaim: integer().notNull(),
   latitude: decimal('latitude', { precision: 10, scale: 7 }).notNull(),
   longitude: decimal('longitude', { precision: 10, scale: 7 }).notNull(),
-  patokan: integer(),
+  patokan: text(),
   user_id: integer()
     .notNull()
     .references(() => usersTable.id),
@@ -71,7 +71,7 @@ export const penyalurTable = pgTable('penyalur', {
   alamat: text('alamat').notNull(),
   latitude: decimal('latitude', { precision: 10, scale: 7 }).notNull(),
   longitude: decimal('longitude', { precision: 10, scale: 7 }).notNull(),
-  patokan: integer(),
+  patokan: text(),
   user_id: integer()
     .notNull()
     .references(() => usersTable.id),

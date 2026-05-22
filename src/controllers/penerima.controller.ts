@@ -23,7 +23,7 @@ export const getAllPenerima = async (
 export const getPenerimaByJWT = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const user_id = req.user?.id;
@@ -49,7 +49,7 @@ export const getPenerimaByJWT = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const createPenerima = async (
   req: AuthRequest,
@@ -65,20 +65,22 @@ export const createPenerima = async (
       alamat,
       latitude,
       longitude,
+      patokan,
     } = req.body;
-    const newPenerima = await db
-      .insert(penerimaTable)
-      .values({
-        nama_instansi,
-        kategori,
-        nomor_whatsapp,
-        alamat,
-        jumlah_klaim: 0,
-        latitude,
-        longitude,
-        user_id,
-      })
-      .returning();
+    const data: any = {
+      nama_instansi,
+      kategori,
+      nomor_whatsapp,
+      alamat,
+      jumlah_klaim: 0,
+      latitude,
+      longitude,
+      user_id,
+    };
+
+    if (patokan !== undefined) data.patokan = patokan;
+
+    const newPenerima = await db.insert(penerimaTable).values(data).returning();
     res.json(newPenerima);
   } catch (error) {
     next(error);
@@ -106,7 +108,7 @@ export const getPenerimaById = async (
 };
 
 export const deletePenerima = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
@@ -126,12 +128,21 @@ export const deletePenerima = async (
 };
 
 export const updatePenerima = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const id = parseInt(req.params.id as string);
+    const user_id = req.user?.id;
+
+    const penerima = await db
+      .select()
+      .from(penerimaTable)
+      .where(eq(penerimaTable.user_id, user_id));
+
+    if (penerima.length === 0) {
+      return res.status(404).json({ error: 'Penerima not found' });
+    }
     const {
       nama_instansi,
       kategori,
@@ -139,7 +150,7 @@ export const updatePenerima = async (
       alamat,
       latitude,
       longitude,
-      patokan
+      patokan,
     } = req.body;
     const data: any = {};
     if (nama_instansi) data.nama_instansi = nama_instansi;
@@ -148,7 +159,7 @@ export const updatePenerima = async (
     if (alamat) data.alamat = alamat;
     if (latitude !== undefined) data.latitude = latitude;
     if (longitude !== undefined) data.longitude = longitude;
-    if (patokan) data.patokan = patokan;
+    if (patokan !== undefined) data.patokan = patokan;
 
     if (Object.keys(data).length === 0) {
       return res.status(400).json({ error: 'No data to update' });
@@ -157,7 +168,7 @@ export const updatePenerima = async (
     const updated = await db
       .update(penerimaTable)
       .set(data)
-      .where(eq(penerimaTable.id, id))
+      .where(eq(penerimaTable.user_id, user_id))
       .returning();
     if (updated.length === 0) {
       return res.status(404).json({ error: 'Penerima not found' });

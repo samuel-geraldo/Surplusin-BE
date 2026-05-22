@@ -148,7 +148,7 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [nama_toko, kategori, nomor_whatsapp, alamat, patokan]
+ *             required: [nama_toko, kategori, nomor_whatsapp, alamat]
  *             properties:
  *               nama_toko:
  *                 type: string
@@ -187,19 +187,12 @@ router.post(
 
 /**
  * @openapi
- * /api/penyalur/{id}:
+ * /api/penyalur/me:
  *   put:
  *     tags: [Penyalur]
  *     summary: Mengubah data penyalur
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID penyalur
  *     requestBody:
  *       required: true
  *       content:
@@ -237,10 +230,9 @@ router.post(
  *         description: Server error
  */
 router.put(
-  '/:id',
+  '/me',
   verifyToken,
   authorizeRole(['penyalur']),
-  validateParams(getPenyalurByIdSchema),
   validateBody(updatePenyalurSchema),
   updatePenyalur,
 );
