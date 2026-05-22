@@ -108,7 +108,7 @@ export const getPenerimaById = async (
 };
 
 export const deletePenerima = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
@@ -128,12 +128,21 @@ export const deletePenerima = async (
 };
 
 export const updatePenerima = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const id = parseInt(req.params.id as string);
+    const user_id = req.user?.id;
+
+    const penerima = await db
+      .select()
+      .from(penerimaTable)
+      .where(eq(penerimaTable.user_id, user_id));
+
+    if (penerima.length === 0) {
+      return res.status(404).json({ error: 'Penerima not found' });
+    }
     const {
       nama_instansi,
       kategori,
@@ -150,7 +159,7 @@ export const updatePenerima = async (
     if (alamat) data.alamat = alamat;
     if (latitude !== undefined) data.latitude = latitude;
     if (longitude !== undefined) data.longitude = longitude;
-    if (patokan) data.patokan = patokan;
+    if (patokan !== undefined) data.patokan = patokan;
 
     if (Object.keys(data).length === 0) {
       return res.status(400).json({ error: 'No data to update' });
@@ -159,7 +168,7 @@ export const updatePenerima = async (
     const updated = await db
       .update(penerimaTable)
       .set(data)
-      .where(eq(penerimaTable.id, id))
+      .where(eq(penerimaTable.user_id, user_id))
       .returning();
     if (updated.length === 0) {
       return res.status(404).json({ error: 'Penerima not found' });

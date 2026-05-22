@@ -11,168 +11,123 @@ import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 const db = drizzle(process.env.DATABASE_URL!);
 
-type KategoriDonasi = typeof kategoridonasiEnum.enumValues[number];
+type KategoriDonasi = (typeof kategoridonasiEnum.enumValues)[number];
 const getDefaultExpired = (kategori: KategoriDonasi): Date => {
   const now = new Date();
-  
+
   switch (kategori) {
     case 'Makanan Siap Saji':
-      now.setHours(now.getHours() + 3);   // 3 jam
+      now.setHours(now.getHours() + 3); // 3 jam
       break;
     case 'Roti & Pastry':
-      now.setHours(now.getHours() + 24);  // 1 hari
+      now.setHours(now.getHours() + 24); // 1 hari
       break;
     case 'Jajanan & Kue':
-      now.setHours(now.getHours() + 48);  // 2 hari
+      now.setHours(now.getHours() + 48); // 2 hari
       break;
   }
-  
+
   return now;
 };
 export const createDonasi = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  try{
-  const user_id = req.user?.id
+  try {
+    const user_id = req.user?.id;
 
-  const penyalur = await db
-    .select()
-    .from(penyalurTable)
-    .where(eq(penyalurTable.user_id, user_id));
+    const penyalur = await db
+      .select()
+      .from(penyalurTable)
+      .where(eq(penyalurTable.user_id, user_id));
 
-  if (penyalur.length === 0) {
-    return res.status(404).json({ error: 'Penyalur not found' });
+    if (penyalur.length === 0) {
+      return res.status(404).json({ error: 'Penyalur not found' });
+    }
+
+    const penyalur_id = penyalur[0].id;
+
+    const { nama, kategori, jumlah, satuan, item_detail } = req.body;
+    const expired_at = getDefaultExpired(kategori);
+    const donasi = await db
+      .insert(donasiTable)
+      .values({
+        penyalur_id,
+        nama,
+        kategori,
+        jumlah,
+        satuan,
+        item_detail,
+        expired_at,
+        status: 'tersedia',
+      })
+      .returning();
+
+    res.json(donasi);
+  } catch (error) {
+    next(error);
   }
-
-  const penyalur_id = penyalur[0].id;
-
-  const { nama, kategori, jumlah, satuan, item_detail} = req.body;
-  const expired_at = getDefaultExpired(kategori);
-  const donasi = await db
-    .insert(donasiTable)
-    .values({ penyalur_id, nama, kategori, jumlah, satuan, item_detail, expired_at, status: 'tersedia' })
-    .returning();
-
-  res.json(donasi);
-}
-catch (error) {
-  next(error);
-}
 };
 
 export const getAllDonasi = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const donasi = 
-    await db
-    .select({
-      nama: donasiTable.nama,
-      kategori: donasiTable.kategori,
-      jumlah: donasiTable.jumlah,
-      satuan: donasiTable.satuan,
-      status: donasiTable.status,
-      expired_at: donasiTable.expired_at,
-    }).from(donasiTable);
+    const donasi = await db.select().from(donasiTable);
     res.json(donasi);
   } catch (error) {
     next(error);
   }
-}
+};
 
-export const getDonasiByNama = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const nama = req.query.nama as string;
-        const donasi = await db
-            .select()
-            .from(donasiTable)
-            .where(
-                and(
-                    eq(donasiTable.nama, nama),
-                    eq(donasiTable.status, 'tersedia')
-                )
-            ); 
-
-        if (donasi.length === 0) {
-            return res.status(404).json({ error: 'Donasi not found' });
-        }
-
-        res.json(donasi);
-    } catch (error) {
-        next(error);
-    }
-}
-
-export const getDonasiById = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const id = parseInt(req.params.id as string);
-        const donasi = await db
-            .select()
-            .from(donasiTable)
-            .where(eq(donasiTable.id, id));
-
-        if (donasi.length === 0) {
-            return res.status(404).json({ error: 'Donasi not found' });
-        }
-
-        res.json(donasi);
-    } catch (error) {
-        next(error);
-    }
-}
-
-export const getDetailItemDonasi = async (
-  req: Request,
+export const getDonasiPenyalurLogin = async (
+  req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const id = parseInt(req.params.id as string);
+    const user_id = req.user?.id;
+    const penyalur = await db
+      .select()
+      .from(penyalurTable)
+      .where(eq(penyalurTable.user_id, user_id));
+
+    if (penyalur.length === 0) {
+      return res.status(404).json({ error: 'Penyalur not found' });
+    }
     const donasi = await db
       .select({
+        id: donasiTable.id,
         nama: donasiTable.nama,
+        kategori: donasiTable.kategori,
         jumlah: donasiTable.jumlah,
         satuan: donasiTable.satuan,
-        item_detail: donasiTable.item_detail
+        item_detail: donasiTable.item_detail,
+        expired_at: donasiTable.expired_at,
       })
       .from(donasiTable)
-      .where(eq(donasiTable.id, id));
-    if (donasi.length === 0) {
-      return res.status(404).json({ error: 'Donasi not found' });
-    }
+      .where(eq(donasiTable.penyalur_id, penyalur[0].id));
     res.json(donasi);
   } catch (error) {
     next(error);
   }
-}
+};
 
-export const getDonasiByKategori = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+export const getDonasiByNama = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
   try {
-    const kategori = req.query.kategori as KategoriDonasi;
+    const nama = req.query.nama as string;
     const donasi = await db
       .select()
       .from(donasiTable)
       .where(
-        and(
-          eq(donasiTable.kategori, kategori),
-          eq(donasiTable.status, 'tersedia')
-        )
+        and(eq(donasiTable.nama, nama), eq(donasiTable.status, 'tersedia')),
       );
 
     if (donasi.length === 0) {
@@ -183,12 +138,86 @@ export const getDonasiByKategori = async (
   } catch (error) {
     next(error);
   }
-}
+};
+
+export const getDonasiById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = parseInt(req.params.id as string);
+    const donasi = await db
+      .select()
+      .from(donasiTable)
+      .where(eq(donasiTable.id, id));
+
+    if (donasi.length === 0) {
+      return res.status(404).json({ error: 'Donasi not found' });
+    }
+
+    res.json(donasi);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDetailItemDonasi = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = parseInt(req.params.id as string);
+    const donasi = await db
+      .select({
+        nama: donasiTable.nama,
+        jumlah: donasiTable.jumlah,
+        satuan: donasiTable.satuan,
+        item_detail: donasiTable.item_detail,
+      })
+      .from(donasiTable)
+      .where(eq(donasiTable.id, id));
+    if (donasi.length === 0) {
+      return res.status(404).json({ error: 'Donasi not found' });
+    }
+    res.json(donasi);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDonasiByKategori = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const kategori = req.query.kategori as KategoriDonasi;
+    const donasi = await db
+      .select()
+      .from(donasiTable)
+      .where(
+        and(
+          eq(donasiTable.kategori, kategori),
+          eq(donasiTable.status, 'tersedia'),
+        ),
+      );
+
+    if (donasi.length === 0) {
+      return res.status(404).json({ error: 'Donasi not found' });
+    }
+
+    res.json(donasi);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const deleteDonasi = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const id = parseInt(req.params.id as string);
@@ -203,12 +232,12 @@ export const deleteDonasi = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const getRiwayatPenerima = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.user?.id;
@@ -239,8 +268,8 @@ export const getRiwayatPenerima = async (
       .where(
         and(
           eq(klaimTable.penerima_id, penerimaId),
-          eq(klaimTable.status, 'completed')
-        )
+          eq(klaimTable.status, 'completed'),
+        ),
       )
       .groupBy(
         penyalurTable.id,
@@ -258,7 +287,7 @@ export const getRiwayatPenerima = async (
 export const getRiwayatPenyerahan = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.user?.id;
@@ -288,10 +317,14 @@ export const getRiwayatPenyerahan = async (
       .where(
         and(
           eq(donasiTable.penyalur_id, penyalurId),
-          eq(klaimTable.status, 'completed')
-        )
+          eq(klaimTable.status, 'completed'),
+        ),
       )
-      .groupBy(penerimaTable.id, penerimaTable.nama_instansi, penerimaTable.alamat);
+      .groupBy(
+        penerimaTable.id,
+        penerimaTable.nama_instansi,
+        penerimaTable.alamat,
+      );
 
     return res.status(200).json(result);
   } catch (error) {
@@ -302,7 +335,7 @@ export const getRiwayatPenyerahan = async (
 export const getStatistikDonasi = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const [diklaim] = await db

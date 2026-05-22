@@ -18,6 +18,7 @@ import {
   getDonasiById,
   getDonasiByNama,
   getDonasiByKategori,
+  getDonasiPenyalurLogin,
   deleteDonasi,
   getDetailItemDonasi,
   getRiwayatPenerima,
@@ -212,6 +213,55 @@ router.get(
  *         description: Server error
  */
 router.get('/statistik', verifyToken, getStatistikDonasi);
+
+/**
+ * @openapi
+ * /api/donasi/penyalur-login:
+ *   get:
+ *     tags: [Donasi]
+ *     summary: Mengambil donasi milik penyalur yang sedang login
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil data donasi penyalur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   nama:
+ *                     type: string
+ *                   kategori:
+ *                     type: string
+ *                   jumlah:
+ *                     type: integer
+ *                   satuan:
+ *                     type: string
+ *                   item_detail:
+ *                     type: string
+ *                   expired_at:
+ *                     type: string
+ *                     format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Penyalur tidak ditemukan
+ *       500:
+ *         description: Server error
+ */
+router.get(
+  '/penyalur-login',
+  verifyToken,
+  authorizeRole(['penyalur']),
+  getDonasiPenyalurLogin,
+);
 
 /**
  * @openapi

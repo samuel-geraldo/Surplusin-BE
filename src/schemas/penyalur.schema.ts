@@ -27,8 +27,16 @@ export const updatePenyalurSchema = z.object({
     .optional(),
   nomor_whatsapp: z.string().min(1, 'Nomor WhatsApp is required').optional(),
   alamat: z.string().min(1, 'Alamat is required').optional(),
-  latitude: z.number().min(1, 'Latitude is required').optional(),
-  longitude: z.number().min(1, 'Longitude is required').optional(),
+  latitude: z
+    .number()
+    .min(-90, 'Latitude tidak valid')
+    .max(90, 'Latitude tidak valid')
+    .optional(),
+  longitude: z
+    .number()
+    .min(-180, 'Longitude tidak valid')
+    .max(180, 'Longitude tidak valid')
+    .optional(),
   patokan: z.string().optional(),
 });
 

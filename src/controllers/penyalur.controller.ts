@@ -108,12 +108,22 @@ export const getPenyalurById = async (
 };
 
 export const updatePenyalur = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const id = parseInt(req.params.id as string);
+    const user_id = req.user?.id;
+
+    const penyalur = await db
+      .select()
+      .from(penyalurTable)
+      .where(eq(penyalurTable.user_id, user_id));
+
+    if (penyalur.length === 0) {
+      return res.status(404).json({ error: 'Penyalur not found' });
+    }
+    const id = penyalur[0].id;
     const {
       nama_toko,
       kategori,
@@ -130,7 +140,7 @@ export const updatePenyalur = async (
     if (alamat) data.alamat = alamat;
     if (latitude !== undefined) data.latitude = latitude;
     if (longitude !== undefined) data.longitude = longitude;
-    if (patokan) data.patokan = patokan;
+    if (patokan !== undefined) data.patokan = patokan;
     if (Object.keys(data).length === 0) {
       return res.status(400).json({ error: 'No data to update' });
     }

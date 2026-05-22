@@ -204,19 +204,12 @@ router.post(
 
 /**
  * @openapi
- * /api/penerima/{id}:
+ * /api/penerima/me:
  *   put:
  *     tags: [Penerima]
  *     summary: Mengubah data penerima
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID penerima
  *     requestBody:
  *       required: true
  *       content:
@@ -254,10 +247,9 @@ router.post(
  *         description: Server error
  */
 router.put(
-  '/:id',
+  '/me',
   verifyToken,
   authorizeRole(['penerima']),
-  validateParams(getPenerimaByIdSchema),
   validateBody(updatePenerimaSchema),
   updatePenerima,
 );
