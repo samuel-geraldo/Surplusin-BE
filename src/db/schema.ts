@@ -54,7 +54,7 @@ export const penerimaTable = pgTable('penerima', {
   kategori: kategoripenerimaEnum('kategori').notNull(),
   nomor_whatsapp: varchar({ length: 20 }).notNull(),
   alamat: text('alamat').notNull(),
-  jumlah_klaim: integer().notNull(),
+  jumlah_klaim: integer().default(0).notNull(),
   latitude: decimal('latitude', { precision: 10, scale: 7 }).notNull(),
   longitude: decimal('longitude', { precision: 10, scale: 7 }).notNull(),
   patokan: text(),

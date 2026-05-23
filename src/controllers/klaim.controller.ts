@@ -36,6 +36,9 @@ export const getKlaimAktifPenerima = async (
         jumlah: donasiTable.jumlah,
         satuan: donasiTable.satuan,
         claimed_at: klaimTable.claimed_at,
+        alamat_penyalur: penyalurTable.alamat,
+        latitude_penyalur: penyalurTable.latitude,
+        longitude_penyalur: penyalurTable.longitude
       })
       .from(klaimTable)
       .innerJoin(donasiTable, eq(klaimTable.donasi_id, donasiTable.id))
@@ -46,9 +49,9 @@ export const getKlaimAktifPenerima = async (
           inArray(klaimTable.status, activeStatuses)
         )
       );
-  }
 
-  catch (error) {
+    return res.status(200).json(result);
+  }catch (error) {
     next(error);
   }
 }
@@ -81,6 +84,9 @@ export const getKlaimAktifPenyalur = async (
         jumlah: donasiTable.jumlah,
         satuan: donasiTable.satuan,
         claimed_at: klaimTable.claimed_at,
+        alamat_penerima: penerimaTable.alamat,
+        latitude_penerima: penerimaTable.latitude,
+        longitude_penerima: penerimaTable.longitude
       })
       .from(klaimTable)
       .innerJoin(donasiTable, eq(klaimTable.donasi_id, donasiTable.id))
@@ -115,15 +121,6 @@ export const createKlaim = async (
       return res.status(404).json({ message: 'Penerima not found' });
     }
 
-    const penyalur = await db
-      .select()
-      .from(penyalurTable)
-      .where(eq(penyalurTable.user_id, userId));
-
-    if (!penyalur.length) {
-      return res.status(404).json({ message: 'Penyalur not found' });
-    }
-
     const donasiId = parseInt(req.params.donasi_id as string);
 
     const donasi = await db
@@ -140,7 +137,7 @@ export const createKlaim = async (
     }
 
     const penerimaId = penerima[0].id;
-    const penyalurId = penyalur[0].id;
+    const penyalurId = donasi[0].penyalur_id;
 
     const result = await db.transaction(async (tx) => {
       const klaim = await tx
