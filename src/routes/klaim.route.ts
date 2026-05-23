@@ -13,6 +13,7 @@ import {
   getKlaimByDonasi,
   updateStatusKlaim,
   getAllKlaim,
+  getKlaimAktifPenyalur,
 } from '../controllers/klaim.controller';
 
 const router = Router();
@@ -34,6 +35,33 @@ const router = Router();
  *         description: Server error
  */
 router.get('/', verifyToken, getAllKlaim);
+
+/**
+ * @openapi
+ * /api/klaim/penyalur/aktif:
+ *   get:
+ *     tags: [Klaim]
+ *     summary: Mengambil klaim aktif untuk donasi milik penyalur login
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil klaim aktif penyalur
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Penyalur tidak ditemukan
+ *       500:
+ *         description: Server error
+ */
+router.get(
+  '/penyalur/aktif',
+  verifyToken,
+  authorizeRole(['penyalur']),
+  getKlaimAktifPenyalur,
+);
 
 /**
  * @openapi
