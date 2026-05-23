@@ -3,10 +3,55 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 import { klaimTable, donasiTable } from '../db/schema';
 import { penerimaTable } from '../db/schema';
 import { penyalurTable } from '../db/schema';
-import { count, eq, notExists, sum, max } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 
 import { drizzle } from 'drizzle-orm/node-postgres';
 const db = drizzle(process.env.DATABASE_URL!);
+
+export const getKlaimAktifPenyalur = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    const penyalur = await db
+      .select()
+      .from(penyalurTable)
+      .where(eq(penyalurTable.user_id, userId));
+
+    if (!penyalur.length) {
+      return res.status(404).json({ message: 'Penyalur not found' });
+    }
+
+    const activeStatuses = ['claimed', 'on_the_way', 'arrived'] as const;
+
+    const result = await db
+      .select({
+        klaim_id: klaimTable.id,
+        status: klaimTable.status,
+        nama_penerima: penerimaTable.nama_instansi,
+        nama_donasi: donasiTable.nama,
+        jumlah: donasiTable.jumlah,
+        satuan: donasiTable.satuan,
+        claimed_at: klaimTable.claimed_at,
+      })
+      .from(klaimTable)
+      .innerJoin(donasiTable, eq(klaimTable.donasi_id, donasiTable.id))
+      .innerJoin(penerimaTable, eq(klaimTable.penerima_id, penerimaTable.id))
+      .where(
+        and(
+          eq(donasiTable.penyalur_id, penyalur[0].id),
+          inArray(klaimTable.status, activeStatuses),
+        ),
+      );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const createKlaim = async (
   req: AuthRequest,
