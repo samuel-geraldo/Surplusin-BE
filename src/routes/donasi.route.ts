@@ -3,15 +3,15 @@ import {
   validateBody,
   validateParams,
   validateQuery,
-} from '../middlewares/validation.middleware';
-import { verifyToken, authorizeRole } from '../middlewares/auth.middleware';
+} from '../middlewares/validation.middleware.js';
+import { verifyToken, authorizeRole } from '../middlewares/auth.middleware.js';
 import {
   createDonasiSchema,
   getDonasiByIdSchema,
   getDonasiByNamaSchema,
   getDonasiByKategoriSchema,
   deleteDonasiSchema,
-} from '../schemas/donasi.schema';
+} from '../schemas/donasi.schema.js';
 import {
   createDonasi,
   getAllDonasi,
@@ -24,7 +24,7 @@ import {
   getRiwayatPenerima,
   getRiwayatPenyerahan,
   getStatistikDonasi,
-} from '../controllers/donasi.controller';
+} from '../controllers/donasi.controller.js';
 
 const router = Router();
 

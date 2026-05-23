@@ -2,13 +2,13 @@ import { Router } from 'express';
 import {
   validateBody,
   validateParams,
-} from '../middlewares/validation.middleware';
-import { verifyToken, authorizeRole } from '../middlewares/auth.middleware';
+} from '../middlewares/validation.middleware.js';
+import { verifyToken, authorizeRole } from '../middlewares/auth.middleware.js';
 import {
   updatePenyalurSchema,
   createPenyalurSchema,
   getPenyalurByIdSchema,
-} from '../schemas/penyalur.schema';
+} from '../schemas/penyalur.schema.js';
 import {
   getAllPenyalur,
   getPenyalurById,
@@ -17,7 +17,7 @@ import {
   deletePenyalur,
   getNearbyPenerimaController,
   getDataPenyalurByJWT,
-} from '../controllers/penyalur.controller';
+} from '../controllers/penyalur.controller.js';
 
 const router = Router();
 

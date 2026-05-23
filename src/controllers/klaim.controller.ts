@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthRequest } from '../middlewares/auth.middleware';
-import { klaimTable, donasiTable } from '../db/schema';
-import { penerimaTable } from '../db/schema';
-import { penyalurTable } from '../db/schema';
+import { AuthRequest } from '../middlewares/auth.middleware.js';
+import { klaimTable, donasiTable } from '../db/schema.js';
+import { penerimaTable } from '../db/schema.js';
+import { penyalurTable } from '../db/schema.js';
 import { and, eq, inArray } from 'drizzle-orm';
 
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -11,7 +11,7 @@ const db = drizzle(process.env.DATABASE_URL!);
 export const getKlaimAktifPenerima = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.user?.id;
@@ -38,7 +38,7 @@ export const getKlaimAktifPenerima = async (
         claimed_at: klaimTable.claimed_at,
         alamat_penyalur: penyalurTable.alamat,
         latitude_penyalur: penyalurTable.latitude,
-        longitude_penyalur: penyalurTable.longitude
+        longitude_penyalur: penyalurTable.longitude,
       })
       .from(klaimTable)
       .innerJoin(donasiTable, eq(klaimTable.donasi_id, donasiTable.id))
@@ -46,15 +46,15 @@ export const getKlaimAktifPenerima = async (
       .where(
         and(
           eq(klaimTable.penerima_id, penerima[0].id),
-          inArray(klaimTable.status, activeStatuses)
-        )
+          inArray(klaimTable.status, activeStatuses),
+        ),
       );
 
     return res.status(200).json(result);
-  }catch (error) {
+  } catch (error) {
     next(error);
   }
-}
+};
 
 export const getKlaimAktifPenyalur = async (
   req: AuthRequest,
@@ -86,7 +86,7 @@ export const getKlaimAktifPenyalur = async (
         claimed_at: klaimTable.claimed_at,
         alamat_penerima: penerimaTable.alamat,
         latitude_penerima: penerimaTable.latitude,
-        longitude_penerima: penerimaTable.longitude
+        longitude_penerima: penerimaTable.longitude,
       })
       .from(klaimTable)
       .innerJoin(donasiTable, eq(klaimTable.donasi_id, donasiTable.id))
@@ -142,7 +142,11 @@ export const createKlaim = async (
     const result = await db.transaction(async (tx) => {
       const klaim = await tx
         .insert(klaimTable)
-        .values({ donasi_id: donasiId, penerima_id: penerimaId, penyalur_id: penyalurId })
+        .values({
+          donasi_id: donasiId,
+          penerima_id: penerimaId,
+          penyalur_id: penyalurId,
+        })
         .returning();
 
       await tx

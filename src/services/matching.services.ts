@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, and, gt } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { donasiTable, penyalurTable, penerimaTable } from '../db/schema';
+import { donasiTable, penyalurTable, penerimaTable } from '../db/schema.js';
 const db = drizzle(process.env.DATABASE_URL!);
 
 // Haversine formula untuk hitung jarak antara 2 koordinat (dalam km)

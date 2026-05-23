@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { usersTable } from '../db/schema';
+import { usersTable } from '../db/schema.js';
 import bcrypt from 'bcryptjs';
 const db = drizzle(process.env.DATABASE_URL!);
 

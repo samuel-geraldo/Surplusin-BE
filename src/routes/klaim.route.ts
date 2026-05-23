@@ -2,12 +2,12 @@ import { Router } from 'express';
 import {
   validateBody,
   validateParams,
-} from '../middlewares/validation.middleware';
-import { verifyToken, authorizeRole } from '../middlewares/auth.middleware';
+} from '../middlewares/validation.middleware.js';
+import { verifyToken, authorizeRole } from '../middlewares/auth.middleware.js';
 import {
   updateStatusKlaimSchema,
   klaimIdSchema,
-} from '../schemas/klaim.schema';
+} from '../schemas/klaim.schema.js';
 import {
   createKlaim,
   getKlaimByDonasi,
@@ -15,7 +15,7 @@ import {
   getAllKlaim,
   getKlaimAktifPenyalur,
   getKlaimAktifPenerima,
-} from '../controllers/klaim.controller';
+} from '../controllers/klaim.controller.js';
 
 const router = Router();
 

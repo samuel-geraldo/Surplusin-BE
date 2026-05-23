@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { usersTable } from '../db/schema';
+import { usersTable } from '../db/schema.js';
 import { google } from 'googleapis';
 
 const db = drizzle(process.env.DATABASE_URL!);
@@ -11,7 +11,8 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID!,
   process.env.GOOGLE_CLIENT_SECRET!,
-  process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/auth/google/callback'
+  process.env.GOOGLE_REDIRECT_URI ||
+    'http://localhost:3000/api/auth/google/callback',
 );
 
 const scopes = [

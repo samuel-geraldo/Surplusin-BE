@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { validateBody } from '../middlewares/validation.middleware';
-import { registerSchema, loginSchema } from '../schemas/auth.schema';
+import { validateBody } from '../middlewares/validation.middleware.js';
+import { registerSchema, loginSchema } from '../schemas/auth.schema.js';
 import {
   register,
   login,
   logout,
   googleLogin,
   callbackGoogle,
-} from '../controllers/auth.controller';
+} from '../controllers/auth.controller.js';
 
 const router = Router();
 

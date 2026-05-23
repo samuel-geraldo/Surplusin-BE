@@ -2,15 +2,15 @@ import { Router } from 'express';
 import {
   validateBody,
   validateParams,
-} from '../middlewares/validation.middleware';
-import { verifyToken, authorizeRole } from '../middlewares/auth.middleware';
-import { updateUserSchema, userIdSchema } from '../schemas/users.schema';
+} from '../middlewares/validation.middleware.js';
+import { verifyToken, authorizeRole } from '../middlewares/auth.middleware.js';
+import { updateUserSchema, userIdSchema } from '../schemas/users.schema.js';
 import {
   getAllUser,
   getUserById,
   updateUser,
   deleteUser,
-} from '../controllers/users.controller';
+} from '../controllers/users.controller.js';
 
 const router = Router();
 

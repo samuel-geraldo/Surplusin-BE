@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import { AuthRequest } from '../middlewares/auth.middleware.js';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { penerimaTable } from '../db/schema';
-import { getNearbyDonasi } from '../services/matching.services';
+import { penerimaTable } from '../db/schema.js';
+import { getNearbyDonasi } from '../services/matching.services.js';
 import bcrypt from 'bcryptjs';
 const db = drizzle(process.env.DATABASE_URL!);
 

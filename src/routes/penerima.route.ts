@@ -2,13 +2,13 @@ import { Router } from 'express';
 import {
   validateBody,
   validateParams,
-} from '../middlewares/validation.middleware';
-import { verifyToken, authorizeRole } from '../middlewares/auth.middleware';
+} from '../middlewares/validation.middleware.js';
+import { verifyToken, authorizeRole } from '../middlewares/auth.middleware.js';
 import {
   updatePenerimaSchema,
   createPenerimaSchema,
   getPenerimaByIdSchema,
-} from '../schemas/penerima.schema';
+} from '../schemas/penerima.schema.js';
 import {
   getAllPenerima,
   getPenerimaById,
@@ -17,7 +17,7 @@ import {
   deletePenerima,
   getNearbyDonasiController,
   getPenerimaByJWT,
-} from '../controllers/penerima.controller';
+} from '../controllers/penerima.controller.js';
 
 const router = Router();
 
