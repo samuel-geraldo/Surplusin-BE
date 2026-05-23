@@ -108,6 +108,7 @@ export const getDonasiPenyalurLogin = async (
         item_detail: donasiTable.item_detail,
         status: donasiTable.status,
         expired_at: donasiTable.expired_at,
+        created_at: donasiTable.created_at,
       })
       .from(donasiTable)
       .where(eq(donasiTable.penyalur_id, penyalur[0].id));
