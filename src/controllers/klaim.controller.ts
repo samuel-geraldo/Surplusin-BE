@@ -8,6 +8,51 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 const db = drizzle(process.env.DATABASE_URL!);
 
+export const getKlaimAktifPenerima = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+
+    const penerima = await db
+      .select()
+      .from(penerimaTable)
+      .where(eq(penerimaTable.user_id, userId));
+
+    if (!penerima.length) {
+      return res.status(404).json({ message: 'Penerima not found' });
+    }
+
+    const activeStatuses = ['claimed', 'on_the_way', 'arrived'] as const;
+
+    const result = await db
+      .select({
+        klaim_id: klaimTable.id,
+        status: klaimTable.status,
+        penyalur: penyalurTable.nama_toko,
+        nama_donasi: donasiTable.nama,
+        jumlah: donasiTable.jumlah,
+        satuan: donasiTable.satuan,
+        claimed_at: klaimTable.claimed_at,
+      })
+      .from(klaimTable)
+      .innerJoin(donasiTable, eq(klaimTable.donasi_id, donasiTable.id))
+      .innerJoin(penyalurTable, eq(klaimTable.penyalur_id, penyalurTable.id))
+      .where(
+        and(
+          eq(klaimTable.penerima_id, penerima[0].id),
+          inArray(klaimTable.status, activeStatuses)
+        )
+      );
+  }
+
+  catch (error) {
+    next(error);
+  }
+}
+
 export const getKlaimAktifPenyalur = async (
   req: AuthRequest,
   res: Response,
@@ -70,6 +115,15 @@ export const createKlaim = async (
       return res.status(404).json({ message: 'Penerima not found' });
     }
 
+    const penyalur = await db
+      .select()
+      .from(penyalurTable)
+      .where(eq(penyalurTable.user_id, userId));
+
+    if (!penyalur.length) {
+      return res.status(404).json({ message: 'Penyalur not found' });
+    }
+
     const donasiId = parseInt(req.params.donasi_id as string);
 
     const donasi = await db
@@ -86,14 +140,12 @@ export const createKlaim = async (
     }
 
     const penerimaId = penerima[0].id;
+    const penyalurId = penyalur[0].id;
 
     const result = await db.transaction(async (tx) => {
       const klaim = await tx
         .insert(klaimTable)
-        .values({
-          donasi_id: donasiId,
-          penerima_id: penerimaId,
-        })
+        .values({ donasi_id: donasiId, penerima_id: penerimaId, penyalur_id: penyalurId })
         .returning();
 
       await tx

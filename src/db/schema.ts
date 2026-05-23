@@ -97,6 +97,9 @@ export const klaimTable = pgTable('klaim', {
   donasi_id: integer()
     .notNull()
     .references(() => donasiTable.id),
+  penyalur_id: integer()
+    .notNull()
+    .references(() => penyalurTable.id),
   penerima_id: integer()
     .notNull()
     .references(() => penerimaTable.id),

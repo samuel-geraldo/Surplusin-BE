@@ -14,6 +14,7 @@ import {
   updateStatusKlaim,
   getAllKlaim,
   getKlaimAktifPenyalur,
+  getKlaimAktifPenerima,
 } from '../controllers/klaim.controller';
 
 const router = Router();
@@ -61,6 +62,33 @@ router.get(
   verifyToken,
   authorizeRole(['penyalur']),
   getKlaimAktifPenyalur,
+);
+
+/**
+ * @openapi
+ * /api/klaim/penerima/aktif:
+ *   get:
+ *     tags: [Klaim]
+ *     summary: Mengambil klaim aktif milik penerima login
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil klaim aktif penerima
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Penerima tidak ditemukan
+ *       500:
+ *         description: Server error
+ */
+router.get(
+  '/penerima/aktif',
+  verifyToken,
+  authorizeRole(['penerima']),
+  getKlaimAktifPenerima,
 );
 
 /**
