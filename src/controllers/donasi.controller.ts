@@ -106,6 +106,7 @@ export const getDonasiPenyalurLogin = async (
         jumlah: donasiTable.jumlah,
         satuan: donasiTable.satuan,
         item_detail: donasiTable.item_detail,
+        status: donasiTable.status,
         expired_at: donasiTable.expired_at,
       })
       .from(donasiTable)
